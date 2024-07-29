@@ -1,21 +1,14 @@
 # Architecture (x86 or x64)
-ARCHITECTURE ?= x86
+ARCHITECTURE ?= x64
 
-# Set architecture-specific flags and windres command
-ifeq ($(ARCHITECTURE),x32)
-	MINGW32 = C:/msys64/mingw32/bin
-
-    CXX = $(MINGW32)/g++
+# Set architecture-specific flags
+ifeq ($(ARCHITECTURE),x86)
     ARCHITECTURE_FLAGS = -m32
-    WINDRES = $(MINGW32)/windres --target=pe-i386
 else
-	MINGW64 = C:/msys64/mingw64/bin
-
-    CXX = $(MINGW64)/g++
     ARCHITECTURE_FLAGS = -m64
-    WINDRES = $(MINGW64)/windres --target=x86_64-w64-mingw32
 endif
 
+CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++20 -DUNICODE -D_UNICODE -O2 $(ARCHITECTURE_FLAGS)
 LDFLAGS = $(ARCHITECTURE_FLAGS)
 
@@ -50,7 +43,7 @@ $(BIN):
 
 # Linking
 $(EXECUTABLE): $(OBJECTS) $(RES_OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) $(RES_OBJ) -o $(BIN)/$(EXECUTABLE)_$(ARCHITECTURE) $(LIBS) $(INCLUDES) $(LDFLAGS) -static -s
+	$(CXX) $(CXXFLAGS) $(OBJECTS) $(RES_OBJ) -o $(BIN)/$(EXECUTABLE) $(LIBS) $(INCLUDES) $(LDFLAGS) -static -s
 
 # Compiling C++ source files
 $(SRC)/%.o: $(SRC)/%.cpp
@@ -58,11 +51,11 @@ $(SRC)/%.o: $(SRC)/%.cpp
 
 # Compiling resources
 $(RES_OBJ): $(RC)
-	$(WINDRES) $< -O coff -o $@
+	windres $< -O coff -o $@
 
 # Full clean-up
 distclean:
-	rm -f $(SRC)/*.o $(BIN)/$(EXECUTABLE)_x86.exe $(BIN)/$(EXECUTABLE)_x64.exe $(RES_OBJ)
+	rm -f $(SRC)/*.o $(BIN)/$(EXECUTABLE) $(RES_OBJ)
 
 # Clean-up
 clean:
